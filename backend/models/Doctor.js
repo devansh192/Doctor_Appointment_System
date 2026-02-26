@@ -49,17 +49,16 @@ const doctorSchema = new mongoose.Schema(
   }
 );
 
-// Virtual: slots remaining
+
 doctorSchema.virtual('slotsRemaining').get(function () {
   return Math.max(0, this.maxDailyPatients - this.currentAppointments);
 });
 
-// Virtual: availability status
 doctorSchema.virtual('isAvailable').get(function () {
   return this.currentAppointments < this.maxDailyPatients && this.isActive;
 });
 
-// Auto-reset currentAppointments at midnight (checked on read)
+
 doctorSchema.methods.checkAndResetDaily = async function () {
   const now = new Date();
   const lastReset = new Date(this.lastResetDate);

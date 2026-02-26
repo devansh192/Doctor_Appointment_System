@@ -12,7 +12,7 @@ const App = () => {
   const [doctorRefreshKey, setDoctorRefreshKey] = useState(0);
 
   const handleOutput = useCallback((entry) => {
-    setOutputs((prev) => [...prev.slice(-19), entry]); // keep last 20 events
+    setOutputs((prev) => [...prev.slice(-19), entry]);
   }, []);
 
   const handleDoctorAdded = useCallback(() => {

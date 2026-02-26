@@ -2,9 +2,6 @@ const { validationResult } = require('express-validator');
 const Doctor = require('../models/Doctor');
 const Appointment = require('../models/Appointment');
 
-// @desc    Book an appointment by specialization
-// @route   POST /api/appointments/book
-// @access  Public
 const bookAppointment = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -18,7 +15,7 @@ const bookAppointment = async (req, res, next) => {
 
     const { specialization, patientName } = req.body;
 
-    // Find all active doctors with the requested specialization
+
     const doctors = await Doctor.find({
       specialization: { $regex: new RegExp(`^${specialization}$`, 'i') },
       isActive: true,
@@ -39,11 +36,8 @@ const bookAppointment = async (req, res, next) => {
         data: appointment,
       });
     }
-
-    // Perform daily reset check for each doctor
     const resetDoctors = await Promise.all(doctors.map((d) => d.checkAndResetDaily()));
 
-    // Filter available doctors (currentAppointments < maxDailyPatients)
     const availableDoctors = resetDoctors.filter((d) => d.currentAppointments < d.maxDailyPatients);
 
     if (!availableDoctors.length) {
@@ -63,19 +57,15 @@ const bookAppointment = async (req, res, next) => {
       });
     }
 
-    // Allocate doctor with FEWEST current appointments (core logic)
     availableDoctors.sort((a, b) => {
-      // Primary: fewest appointments
       if (a.currentAppointments !== b.currentAppointments) {
         return a.currentAppointments - b.currentAppointments;
       }
-      // Secondary: highest remaining capacity (tie-breaker)
       return b.slotsRemaining - a.slotsRemaining;
     });
 
     const selectedDoctor = availableDoctors[0];
 
-    // Atomically increment currentAppointments to prevent race conditions
     const updatedDoctor = await Doctor.findByIdAndUpdate(
       selectedDoctor._id,
       { $inc: { currentAppointments: 1 } },
@@ -83,7 +73,7 @@ const bookAppointment = async (req, res, next) => {
     );
 
     if (!updatedDoctor || updatedDoctor.currentAppointments > updatedDoctor.maxDailyPatients) {
-      // Race condition: slot was taken, retry logic
+      
       return res.status(409).json({
         success: false,
         status: 'rejected',
@@ -91,7 +81,7 @@ const bookAppointment = async (req, res, next) => {
       });
     }
 
-    // Create appointment record
+
     const appointment = await Appointment.create({
       patientName,
       specialization,
@@ -116,9 +106,7 @@ const bookAppointment = async (req, res, next) => {
   }
 };
 
-// @desc    Get all appointments
-// @route   GET /api/appointments
-// @access  Public
+
 const getAppointments = async (req, res, next) => {
   try {
     const { status, specialization, limit = 50 } = req.query;
@@ -141,9 +129,6 @@ const getAppointments = async (req, res, next) => {
   }
 };
 
-// @desc    Get appointment stats
-// @route   GET /api/appointments/stats
-// @access  Public
 const getStats = async (req, res, next) => {
   try {
     const today = new Date();

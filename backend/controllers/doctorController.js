@@ -1,9 +1,6 @@
 const { validationResult } = require('express-validator');
 const Doctor = require('../models/Doctor');
 
-// @desc    Get all doctors
-// @route   GET /api/doctors
-// @access  Public
 const getAllDoctors = async (req, res, next) => {
   try {
     const { specialization, available } = req.query;
@@ -15,10 +12,9 @@ const getAllDoctors = async (req, res, next) => {
 
     let doctors = await Doctor.find(filter).sort({ specialization: 1, name: 1 });
 
-    // Daily reset check for each doctor
     doctors = await Promise.all(doctors.map((doc) => doc.checkAndResetDaily()));
 
-    // Filter available doctors if requested
+
     if (available === 'true') {
       doctors = doctors.filter((d) => d.isAvailable);
     }
@@ -33,9 +29,6 @@ const getAllDoctors = async (req, res, next) => {
   }
 };
 
-// @desc    Get doctor by ID
-// @route   GET /api/doctors/:id
-// @access  Public
 const getDoctorById = async (req, res, next) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
@@ -49,9 +42,7 @@ const getDoctorById = async (req, res, next) => {
   }
 };
 
-// @desc    Add a new doctor
-// @route   POST /api/doctors
-// @access  Public
+
 const addDoctor = async (req, res, next) => {
   try {
     const errors = validationResult(req);
@@ -91,9 +82,6 @@ const addDoctor = async (req, res, next) => {
   }
 };
 
-// @desc    Delete a doctor (soft delete)
-// @route   DELETE /api/doctors/:id
-// @access  Public
 const deleteDoctor = async (req, res, next) => {
   try {
     const doctor = await Doctor.findById(req.params.id);
@@ -113,9 +101,6 @@ const deleteDoctor = async (req, res, next) => {
   }
 };
 
-// @desc    Reset daily appointments for all doctors
-// @route   POST /api/doctors/reset
-// @access  Public
 const resetDailyAppointments = async (req, res, next) => {
   try {
     const result = await Doctor.updateMany(
@@ -132,9 +117,6 @@ const resetDailyAppointments = async (req, res, next) => {
   }
 };
 
-// @desc    Get distinct specializations
-// @route   GET /api/doctors/specializations
-// @access  Public
 const getSpecializations = async (req, res, next) => {
   try {
     const specializations = await Doctor.distinct('specialization', { isActive: true });

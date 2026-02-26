@@ -10,18 +10,16 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ─── Request Interceptor ─────────────────────────────────────────────────────
 api.interceptors.request.use(
   (config) => config,
   (error) => Promise.reject(error)
 );
 
-// ─── Response Interceptor ─────────────────────────────────────────────────────
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response) {
-      // Server responded with error status
+      
       const message =
         error.response.data?.message ||
         error.response.data?.error ||
@@ -34,7 +32,6 @@ api.interceptors.response.use(
   }
 );
 
-// ─── Doctor APIs ─────────────────────────────────────────────────────────────
 export const doctorAPI = {
   getAll: (params) => api.get('/doctors', { params }),
   getById: (id) => api.get(`/doctors/${id}`),
@@ -44,7 +41,6 @@ export const doctorAPI = {
   resetDaily: () => api.post('/doctors/reset/daily'),
 };
 
-// ─── Appointment APIs ─────────────────────────────────────────────────────────
 export const appointmentAPI = {
   book: (data) => api.post('/appointments/book', data),
   getAll: (params) => api.get('/appointments', { params }),
