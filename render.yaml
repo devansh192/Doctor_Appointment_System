@@ -1,0 +1,50 @@
+# Render Blueprint – Hospital Appointment Scheduler
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # ── Backend API (Node.js) ─────────────────────────────────────────────────
+  - type: web
+    name: hospital-scheduler-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false          # Set manually in Render dashboard (secret)
+      - key: FRONTEND_URL
+        sync: false          # Set to your frontend Render URL after first deploy
+    scaling:
+      minInstances: 1
+      maxInstances: 3
+      targetMemoryPercent: 75
+      targetCPUPercent: 75
+
+  # ── Frontend (Static Site) ────────────────────────────────────────────────
+  - type: web
+    name: hospital-scheduler-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # Set to your backend Render URL after first deploy
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
