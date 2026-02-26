@@ -8,8 +8,8 @@ A full-stack MERN application that efficiently schedules doctor appointments usi
 
 | Service  | URL |
 |----------|-----|
-| Frontend | `https://hospital-scheduler-frontend.onrender.com` |
-| Backend  | `https://hospital-scheduler-api.onrender.com`      |
+| Frontend | `https://doctor-appointmentfrontend.onrender.com` |
+| Backend  | `https://doctor-appointment-system-xjqn.onrender.com`      |
 
 ---
 
